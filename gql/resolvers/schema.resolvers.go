@@ -8,23 +8,42 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/jasurbekibnxusniddin/graphql-api-template-with-golang/gql/schema"
 	"github.com/jasurbekibnxusniddin/graphql-api-template-with-golang/models"
 )
 
 // CreateTodo is the resolver for the createTodo field.
 func (r *mutationResolver) CreateTodo(ctx context.Context, input models.NewTodo) (*models.Todo, error) {
-	panic(fmt.Errorf("not implemented: CreateTodo - createTodo"))
+
+	newTodo := &models.Todo{
+		ID:   uuid.NewString(),
+		Text: input.Text,
+	}
+
+	todo, err := r.Storage.GetTodoRepo().CreateTodo(context.Background(), newTodo)
+	if err != nil {
+		return nil, err
+	}
+
+	return todo, nil
 }
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input models.NewUser) (*models.User, error) {
-	panic(fmt.Errorf("not implemented: CreateUser - createUser"))
+
+	return nil, nil
 }
 
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*models.Todo, error) {
-	panic(fmt.Errorf("not implemented: Todos - todos"))
+	
+	todos, err := r.Storage.GetTodoRepo().GetTodo(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return todos, nil
 }
 
 // Users is the resolver for the users field.
@@ -33,10 +52,10 @@ func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
 }
 
 // Mutation returns schema.MutationResolver implementation.
-func (r *Resolver) Mutation() schema.MutationResolver { return &mutationResolver{r} }
+func (r *resolver) Mutation() schema.MutationResolver { return &mutationResolver{r} }
 
 // Query returns schema.QueryResolver implementation.
-func (r *Resolver) Query() schema.QueryResolver { return &queryResolver{r} }
+func (r *resolver) Query() schema.QueryResolver { return &queryResolver{r} }
 
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+type mutationResolver struct{ *resolver }
+type queryResolver struct{ *resolver }
